@@ -8,7 +8,11 @@
 import Cocoa
 
 class ViewController: NSViewController {
-
+    
+    @IBOutlet weak var startProxyButton: NSButton!
+    @IBOutlet weak var stopProxyButton: NSButton!
+    @IBOutlet weak var logView: NSTextField!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -21,6 +25,13 @@ class ViewController: NSViewController {
         }
     }
 
-
+    @IBAction func startProxy(_ sender: Any) {
+    }
+    
+    @IBAction func stopProxy(_ sender: Any) {
+    }
+    
+    @IBAction func clearLog(_ sender: Any) {
+    }
 }
 
