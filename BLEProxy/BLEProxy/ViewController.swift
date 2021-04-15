@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  BLEProxy
-//
-//  Created by Tom Hanekamp on 07/04/2021.
-//
-
 import Cocoa
 
 class ViewController: NSViewController {
