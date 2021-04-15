@@ -10,12 +10,13 @@ protocol BleCentralDelegate {
     func logMessage(message: String)
 }
 
-class BleCentral: NSObject, CBCentralManagerDelegate {
+class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     var delegate: BleCentralDelegate?
     
     private var centralManager: CBCentralManager?
     private var peripheralName: String?
+    private var peripheral: CBPeripheral?
     
     override init() {
         super.init()
@@ -39,6 +40,18 @@ class BleCentral: NSObject, CBCentralManagerDelegate {
         if (self.centralManager?.isScanning ?? false) {
             self.delegate?.logMessage(message: "Stopped scanning for BLE peripherals.")
             self.centralManager?.stopScan()
+        }
+    }
+    
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        guard let name = peripheral.name?.lowercased(), let gapName = (advertisementData[CBAdvertisementDataLocalNameKey] as? String)?.lowercased(), let peripheralName = self.peripheralName?.lowercased() else { return }
+        self.delegate?.logMessage(message: "BLE peripheral found with names: [\(name),\(gapName)].")
+        if peripheral.state != .connected && (name == peripheralName || gapName == peripheralName) {
+            self.stopScanning()
+            self.delegate?.logMessage(message: "Connecting to peripheral \(peripheral).")
+            self.peripheral = peripheral
+            self.peripheral?.delegate = self
+            self.centralManager?.connect(peripheral, options: nil)
         }
     }
     
