@@ -12,6 +12,7 @@
 		97B71FF5261DE87800602F6D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97B71FF4261DE87800602F6D /* Assets.xcassets */; };
 		97B71FF8261DE87800602F6D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97B71FF6261DE87800602F6D /* Main.storyboard */; };
 		97B72002261EE69A00602F6D /* BLECentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B72001261EE69A00602F6D /* BLECentral.swift */; };
+		97BF77C0262878A000094ACC /* BLEConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BF77BF262878A000094ACC /* BLEConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		97B71FF9261DE87800602F6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		97B71FFA261DE87800602F6D /* BLEProxy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BLEProxy.entitlements; sourceTree = "<group>"; };
 		97B72001261EE69A00602F6D /* BLECentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECentral.swift; sourceTree = "<group>"; };
+		97BF77BF262878A000094ACC /* BLEConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 				97B71FF9261DE87800602F6D /* Info.plist */,
 				97B71FFA261DE87800602F6D /* BLEProxy.entitlements */,
 				97B72001261EE69A00602F6D /* BLECentral.swift */,
+				97BF77BF262878A000094ACC /* BLEConstants.swift */,
 			);
 			path = BLEProxy;
 			sourceTree = "<group>";
@@ -136,6 +139,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97B71FF3261DE87600602F6D /* ViewController.swift in Sources */,
+				97BF77C0262878A000094ACC /* BLEConstants.swift in Sources */,
 				97B72002261EE69A00602F6D /* BLECentral.swift in Sources */,
 				97B71FF1261DE87600602F6D /* AppDelegate.swift in Sources */,
 			);

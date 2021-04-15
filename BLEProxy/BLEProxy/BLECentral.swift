@@ -15,6 +15,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate {
     var delegate: BleCentralDelegate?
     
     private var centralManager: CBCentralManager?
+    private var peripheralName: String?
     
     override init() {
         super.init()
@@ -22,7 +23,11 @@ class BleCentral: NSObject, CBCentralManagerDelegate {
     }
     
     func connect() {
-        
+        self.peripheralName = BleConstants.DEVICE_NAME
+        if self.centralManager?.state == .poweredOn && !(self.centralManager?.isScanning ?? false) {
+            self.delegate?.logMessage(message: "Started scanning for BLE peripherals.")
+            self.centralManager?.scanForPeripherals(withServices: nil, options: nil)
+        }
     }
     
     func disconnect() {
@@ -38,6 +43,8 @@ class BleCentral: NSObject, CBCentralManagerDelegate {
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        
+        if central.state == .poweredOn && self.peripheralName != nil && !central.isScanning {
+            central.scanForPeripherals(withServices: nil, options: nil)
+        }
     }
 }
