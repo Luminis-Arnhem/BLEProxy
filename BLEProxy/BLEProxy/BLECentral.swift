@@ -12,8 +12,29 @@ protocol BleCentralDelegate {
 
 class BleCentral: NSObject, CBCentralManagerDelegate {
     
+    var delegate: BleCentralDelegate?
+    
+    private var centralManager: CBCentralManager?
+    
     override init() {
         super.init()
+        self.centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+    
+    func connect() {
+        
+    }
+    
+    func disconnect() {
+        
+    }
+    
+    func readData(characteristicUUID: CBUUID) {
+        
+    }
+    
+    func writeData(characteristicUUID: CBUUID, data: Data) {
+        
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
