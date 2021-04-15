@@ -31,7 +31,15 @@ class BleCentral: NSObject, CBCentralManagerDelegate {
     }
     
     func disconnect() {
-        
+        self.peripheralName = nil
+        self.stopScanning()
+    }
+
+    private func stopScanning() {
+        if (self.centralManager?.isScanning ?? false) {
+            self.delegate?.logMessage(message: "Stopped scanning for BLE peripherals.")
+            self.centralManager?.stopScan()
+        }
     }
     
     func readData(characteristicUUID: CBUUID) {
