@@ -34,6 +34,11 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func disconnect() {
         self.peripheralName = nil
         self.stopScanning()
+        if let peripheral = self.peripheral {
+            if peripheral.state == .connected || peripheral.state == .connecting {
+                self.centralManager?.cancelPeripheralConnection(peripheral)
+            }
+        }
     }
 
     private func stopScanning() {
@@ -52,6 +57,23 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             self.peripheral = peripheral
             self.peripheral?.delegate = self
             self.centralManager?.connect(peripheral, options: nil)
+        }
+    }
+    
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        self.delegate?.logMessage(message: "Connected to peripheral \(peripheral), discovering services.")
+        self.peripheral?.discoverServices(nil)
+    }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        self.delegate?.disconnected(reason: "Connection to peripheral \(peripheral) failed with error: \(error.debugDescription)")
+    }
+    
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Connection to peripheral \(peripheral) closed with error: \(error).")
+        } else {
+            self.delegate?.disconnected(reason: "Connection to peripheral \(peripheral) closed.")
         }
     }
     
