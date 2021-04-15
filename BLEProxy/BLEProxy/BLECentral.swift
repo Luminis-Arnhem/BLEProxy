@@ -2,7 +2,7 @@ import Foundation
 import CoreBluetooth
 
 protocol BleCentralDelegate {
-    func connected()
+    func connected(services: [BleService])
     func disconnected(reason: String)
     func dataRead(data: Data)
     func dataWritten()
@@ -17,6 +17,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var centralManager: CBCentralManager?
     private var peripheralName: String?
     private var peripheral: CBPeripheral?
+    private var services: [BleService]?
     
     override init() {
         super.init()
@@ -62,6 +63,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         self.delegate?.logMessage(message: "Connected to peripheral \(peripheral), discovering services.")
+        self.setupServicesAndCharacteristics()
         self.peripheral?.discoverServices(nil)
     }
 
@@ -75,6 +77,70 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         } else {
             self.delegate?.disconnected(reason: "Connection to peripheral \(peripheral) closed.")
         }
+    }
+    
+    private func setupServicesAndCharacteristics() {
+        self.services = BleConstants.SERVICES_AND_CHARACTERISTICS.map({ (key: CBUUID, value: [CBUUID]) -> BleService in
+            let service = BleService(uuid: key)
+            service.characteristics = value.map({ (uuid) -> BleCharacteristic in
+                return BleCharacteristic(uuid: uuid)
+            })
+            return service
+        })
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Peripheral \(peripheral) service discovery failed with error: \(error).")
+            self.disconnect()
+        } else if let services = peripheral.services {
+            for service in services {
+                if let expectedService = self.services?.first(where: { (expectedService) -> Bool in
+                    service.uuid == expectedService.uuid
+                }) {
+                    expectedService.service = service
+                    self.delegate?.logMessage(message: "Service \(service.uuid.uuidString) found, discovering characteristics.")
+                    peripheral.discoverCharacteristics(nil, for: service)
+                }
+            }
+        } else {
+            self.delegate?.disconnected(reason: "Peripheral \(peripheral) has no services.")
+            self.disconnect()
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Peripheral \(peripheral) and service \(service.uuid.uuidString) characteristic discovery failed with error: \(error).")
+            self.disconnect()
+        } else if let characteristics = service.characteristics {
+            if let expectedService = self.services?.first(where: { (expectedService) -> Bool in
+                service.uuid == expectedService.uuid
+            }) {
+                for characteristic in characteristics {
+                    if let expectedCharacteristic = expectedService.characteristics?.first(where: { (expectedCharacteristic) -> Bool in
+                        characteristic.uuid == expectedCharacteristic.uuid
+                    }) {
+                        expectedCharacteristic.characteristic = characteristic
+                        if let services = self.services, self.servicesAndCharacteristicsComplete(services) {
+                            self.delegate?.connected(services: services)
+                        }
+                    }
+                }
+            }
+            
+        } else {
+            self.delegate?.disconnected(reason: "Peripheral \(peripheral) and service \(service.uuid.uuidString) have no characteristics.")
+            self.disconnect()
+        }
+    }
+    
+    private func servicesAndCharacteristicsComplete(_ services: [BleService]) -> Bool {
+        return services.allSatisfy({ (bleService) -> Bool in
+            return bleService.service != nil && bleService.characteristics?.allSatisfy({ (bleCharacteristic) -> Bool in
+                return bleCharacteristic.characteristic != nil
+            }) ?? false
+        })
     }
     
     func readData(characteristicUUID: CBUUID) {
