@@ -15,6 +15,7 @@
 		97BF77C0262878A000094ACC /* BLEConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BF77BF262878A000094ACC /* BLEConstants.swift */; };
 		97BF77C32628859800094ACC /* BLECharacteristic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BF77C22628859800094ACC /* BLECharacteristic.swift */; };
 		97BF77C6262889BB00094ACC /* BLEService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BF77C5262889BB00094ACC /* BLEService.swift */; };
+		97BF77DC26298DFE00094ACC /* Data+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BF77D626298D3E00094ACC /* Data+Hex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		97BF77BF262878A000094ACC /* BLEConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEConstants.swift; sourceTree = "<group>"; };
 		97BF77C22628859800094ACC /* BLECharacteristic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECharacteristic.swift; sourceTree = "<group>"; };
 		97BF77C5262889BB00094ACC /* BLEService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEService.swift; sourceTree = "<group>"; };
+		97BF77D626298D3E00094ACC /* Data+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Hex.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				97BF77BF262878A000094ACC /* BLEConstants.swift */,
 				97BF77C22628859800094ACC /* BLECharacteristic.swift */,
 				97BF77C5262889BB00094ACC /* BLEService.swift */,
+				97BF77D626298D3E00094ACC /* Data+Hex.swift */,
 			);
 			path = BLEProxy;
 			sourceTree = "<group>";
@@ -144,6 +147,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97BF77DC26298DFE00094ACC /* Data+Hex.swift in Sources */,
 				97BF77C32628859800094ACC /* BLECharacteristic.swift in Sources */,
 				97B71FF3261DE87600602F6D /* ViewController.swift in Sources */,
 				97BF77C0262878A000094ACC /* BLEConstants.swift in Sources */,

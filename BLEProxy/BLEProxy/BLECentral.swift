@@ -4,9 +4,8 @@ import CoreBluetooth
 protocol BleCentralDelegate {
     func connected(services: [BleService])
     func disconnected(reason: String)
-    func dataRead(data: Data)
-    func dataWritten()
-    func dataReceivedFromPeripheral(data: Data)
+    func dataWritten(onCharacteristicWithUUID: CBUUID, withResult: CBATTError.Code)
+    func dataReceived(data: Data, onCharacteristicWithUUID: CBUUID)
     func logMessage(message: String)
 }
 
@@ -144,11 +143,56 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     
     func readData(characteristicUUID: CBUUID) {
-        
+        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
+            self.delegate?.logMessage(message: "Reading from peripheral on characteristic: \(characteristicUUID.uuidString)")
+            peripheral.readValue(for: characteristic)
+        }
     }
     
-    func writeData(characteristicUUID: CBUUID, data: Data) {
+    private func findCharacteristic(_ characteristicUUID: CBUUID) -> CBCharacteristic? {
+        if let services = self.services {
+            for service in services {
+                if let bleCharacteristic = service.characteristics?.first(where: { (bleCharacteristic) -> Bool in
+                    return bleCharacteristic.uuid == characteristicUUID
+                }) {
+                    return bleCharacteristic.characteristic
+                }
+            }
+        }
+        return nil
+    }
+    
+    func writeData(characteristicUUID: CBUUID, data: Data, writeType: CBCharacteristicWriteType) {
+        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
+            self.delegate?.logMessage(message: "Writing to peripheral on characteristic: \(characteristicUUID.uuidString) -> \(data.hexEncodedString())")
+            peripheral.writeValue(data, for: characteristic, type: writeType)
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Writing data to peripheral on characteristic \(characteristic.uuid.uuidString) failed with error: \(error).")
+            self.delegate?.dataWritten(onCharacteristicWithUUID: characteristic.uuid, withResult: CBATTError.unlikelyError)
+        } else {
+            self.delegate?.dataWritten(onCharacteristicWithUUID: characteristic.uuid, withResult: CBATTError.success)
+        }
+    }
+
+    func registerForNotifications(characteristicUUID: CBUUID) {
         
+    }
+
+    func unregisterFromNotifications(characteristicUUID: CBUUID) {
+
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Receiving data failed with error: \(error).")
+            self.disconnect()
+        } else if let data = characteristic.value {
+            self.delegate?.dataReceived(data: data, onCharacteristicWithUUID: characteristic.uuid)
+        }
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
