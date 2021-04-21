@@ -179,11 +179,34 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
 
     func registerForNotifications(characteristicUUID: CBUUID) {
-        
+        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
+            if characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate) {
+                peripheral.setNotifyValue(true, for: characteristic)
+            } else {
+                delegate?.logMessage(message: "registerForNotifications requested for characteristic \(characteristicUUID) that does not allow such actions.")
+            }
+        }
     }
 
     func unregisterFromNotifications(characteristicUUID: CBUUID) {
-
+        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
+            if characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate) {
+                peripheral.setNotifyValue(false, for: characteristic)
+            } else {
+                delegate?.logMessage(message: "registerForNotifications requested for characteristic \(characteristicUUID.uuidString) that does not allow such actions.")
+            }
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            self.delegate?.disconnected(reason: "Notification state update failed for characteristic \(characteristic.uuid.uuidString) with error: \(error).")
+            self.disconnect()
+        } else if (characteristic.isNotifying) {
+            delegate?.logMessage(message: "Now receiving notifications for characteristic \(characteristic.uuid.uuidString)")
+        } else {
+            delegate?.logMessage(message: "No longer receiving notifications for characteristic \(characteristic.uuid.uuidString)")
+        }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
