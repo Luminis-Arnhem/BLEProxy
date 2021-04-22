@@ -28,6 +28,8 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         if self.centralManager?.state == .poweredOn && !(self.centralManager?.isScanning ?? false) {
             self.delegate?.logMessage(message: "Started scanning for BLE peripherals.")
             self.centralManager?.scanForPeripherals(withServices: nil, options: nil)
+        } else {
+            self.delegate?.logMessage(message: "BLE is not powered on (yet).")
         }
     }
     
@@ -220,6 +222,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn && self.peripheralName != nil && !central.isScanning {
+            self.delegate?.logMessage(message: "BLE is powered on now, started scanning for BLE peripherals.")
             central.scanForPeripherals(withServices: nil, options: nil)
         }
     }
