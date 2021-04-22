@@ -60,27 +60,17 @@ class ViewController: NSViewController, BleCentralDelegate, BlePeripheralDelegat
     }
     
     func write(data: Data, toCharacteristicUUID uuid: CBUUID) {
-        log("Writing data \(data) from central to peripheral on characteristic \(uuid.uuidString)")
+        log("Writing data \(data.hexEncodedString()) from central to peripheral on characteristic \(uuid.uuidString)")
         self.bleCentral?.writeData(characteristicUUID: uuid, data: data, writeType: .withResponse)
     }
     
-    func registerForNotifications(onCharacteristicWithUUID uuid: CBUUID) {
-        log("Registering for notifications on characteristic \(uuid.uuidString)")
-        self.bleCentral?.registerForNotifications(characteristicUUID: uuid)
-    }
-    
-    func unregisterFromNotifications(onCharacteristicWithUUID uuid: CBUUID) {
-        log("Unregistering from notifications on characteristic \(uuid.uuidString)")
-        self.bleCentral?.unregisterFromNotifications(characteristicUUID: uuid)
-    }
-    
     func dataWritten(onCharacteristicWithUUID uuid: CBUUID, withResult result: CBATTError.Code) {
-        log("Data written from central to peripheral on characteristic \(uuid.uuidString) with result: \(result)")
+        log("Data written from central to peripheral on characteristic \(uuid.uuidString) with result: \(result.rawValue)")
         self.blePeripheral?.confirmWriteRequest(onCharacteristicUUID: uuid, withResult: result)
     }
     
     func dataReceived(data: Data, onCharacteristicWithUUID uuid: CBUUID) {
-        log("Received \(data) from peripheral to pass to central on characteristic \(uuid.uuidString)")
+        log("Received \(data.hexEncodedString()) from peripheral to pass to central on characteristic \(uuid.uuidString)")
         self.blePeripheral?.dataReceived(data: data, onCharacteristicUUID: uuid)
     }
     

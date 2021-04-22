@@ -6,8 +6,7 @@ protocol BlePeripheralDelegate {
     func advertisingStopped(reason: String)
     func read(fromCharacteristicUUID uuid: CBUUID)
     func write(data: Data, toCharacteristicUUID uuid: CBUUID)
-    func registerForNotifications(onCharacteristicWithUUID uuid: CBUUID)
-    func unregisterFromNotifications(onCharacteristicWithUUID uuid: CBUUID)
+    func logMessage(message: String)
 }
 
 class BlePeripheral: NSObject, CBPeripheralManagerDelegate {
@@ -19,24 +18,27 @@ class BlePeripheral: NSObject, CBPeripheralManagerDelegate {
     private var characteristics: [CBMutableCharacteristic] = []
     private var openReadRequests: [CBATTRequest] = []
     private var openWriteRequests: [CBATTRequest] = []
-    private var registrations: [CBCharacteristic: [CBCentral]] = [:]
     
     override init() {
         super.init()
-        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: nil)
     }
     
     func startAdvertising(services: [BleService]) {
         self.openReadRequests = []
         self.openWriteRequests = []
-        self.registrations = [:]
         self.initialiseServicesAndCharacteristics(services: services)
+       
+        for service in self.services {
+            self.peripheralManager?.add(service)
+        }
+        
         self.peripheralManager?.startAdvertising([
             CBAdvertisementDataServiceUUIDsKey : self.services.map({ (service) -> CBUUID in
                 return service.uuid
             }),
             CBAdvertisementDataLocalNameKey: BleConstants.DEVICE_NAME,
-        ])
+        ])        
     }
     
     private func initialiseServicesAndCharacteristics(services: [BleService]) {
@@ -52,7 +54,7 @@ class BlePeripheral: NSObject, CBPeripheralManagerDelegate {
                     }
                 }
             }
-            let service = CBMutableService(type: bleService.uuid, primary: bleService.service?.isPrimary ?? false)
+            let service = CBMutableService(type: bleService.uuid, primary: true)
             service.characteristics = characteristics
             self.services.append(service)
         }
@@ -72,9 +74,17 @@ class BlePeripheral: NSObject, CBPeripheralManagerDelegate {
         self.delegate?.advertisingStopped(reason: "Stop requested")
     }
     
+    func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
+        if let error = error {
+            self.delegate?.advertisingStopped(reason: "There was an error when adding the service \(service.uuid.uuidString), error: \(error)")
+        } else {
+            self.delegate?.logMessage(message: "The service \(service.uuid.uuidString) was added.")
+        }
+    }
+    
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         if let error = error {
-            self.delegate?.advertisingStopped(reason: "There was an error: \(error)")
+            self.delegate?.advertisingStopped(reason: "There was an error in starting the advertising: \(error)")
         } else {
             self.delegate?.advertisingStarted()
         }
@@ -127,35 +137,17 @@ class BlePeripheral: NSObject, CBPeripheralManagerDelegate {
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-        if var registrationsForCharacteristic = self.registrations[characteristic] {
-            if (!registrationsForCharacteristic.contains(central)) {
-                registrationsForCharacteristic.append(central)
-            }
-        } else {
-            self.registrations[characteristic] = [central]
-            self.delegate?.registerForNotifications(onCharacteristicWithUUID: characteristic.uuid)
-        }
+        self.delegate?.logMessage(message: "Central \(central.identifier) has registered for notifications on characteristic \(characteristic.uuid.uuidString)")
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-        if var registrationsForCharacteristic = self.registrations[characteristic] {
-            registrationsForCharacteristic.removeAll { (centralRegistration) -> Bool in
-                centralRegistration.identifier == central.identifier
-            }
-            if registrationsForCharacteristic.isEmpty {
-                self.delegate?.unregisterFromNotifications(onCharacteristicWithUUID: characteristic.uuid)
-            }
-        }
+        self.delegate?.logMessage(message: "Central \(central.identifier) has unregistered from notifications on characteristic \(characteristic.uuid.uuidString)")
     }
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         if peripheral.state != .poweredOn {
             self.delegate?.advertisingStopped(reason: "Bluetooth is turned off.")
             return
-        }
-        
-        for service in self.services {
-            self.peripheralManager?.add(service)
         }
     }
 }

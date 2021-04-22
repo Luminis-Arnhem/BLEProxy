@@ -60,7 +60,6 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             self.delegate?.logMessage(message: "Connecting to peripheral \(peripheral).")
             self.peripheral = peripheral
             self.peripheral?.delegate = self
-            print("Connecting to peripheral")
             self.centralManager?.connect(peripheral, options: [CBConnectPeripheralOptionNotifyOnConnectionKey: true])
         }
     }
@@ -129,6 +128,9 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         characteristic.uuid == expectedCharacteristic.uuid
                     }) {
                         expectedCharacteristic.characteristic = characteristic
+                        if (characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate)) {
+                            self.peripheral?.setNotifyValue(true, for: characteristic)
+                        }
                     }
                 }
             }
@@ -182,26 +184,6 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             self.delegate?.dataWritten(onCharacteristicWithUUID: characteristic.uuid, withResult: CBATTError.unlikelyError)
         } else {
             self.delegate?.dataWritten(onCharacteristicWithUUID: characteristic.uuid, withResult: CBATTError.success)
-        }
-    }
-
-    func registerForNotifications(characteristicUUID: CBUUID) {
-        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
-            if characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate) {
-                peripheral.setNotifyValue(true, for: characteristic)
-            } else {
-                delegate?.logMessage(message: "registerForNotifications requested for characteristic \(characteristicUUID) that does not allow such actions.")
-            }
-        }
-    }
-
-    func unregisterFromNotifications(characteristicUUID: CBUUID) {
-        if let peripheral = self.peripheral, let characteristic = findCharacteristic(characteristicUUID) {
-            if characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate) {
-                peripheral.setNotifyValue(false, for: characteristic)
-            } else {
-                delegate?.logMessage(message: "registerForNotifications requested for characteristic \(characteristicUUID.uuidString) that does not allow such actions.")
-            }
         }
     }
     
