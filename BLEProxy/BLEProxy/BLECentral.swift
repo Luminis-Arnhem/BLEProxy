@@ -17,6 +17,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var peripheralName: String?
     private var peripheral: CBPeripheral?
     private var services: [BleService]?
+    private var connected: Bool = false
     
     override init() {
         super.init()
@@ -24,6 +25,7 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     
     func connect() {
+        self.connected = false
         self.peripheralName = BleConstants.DEVICE_NAME
         if self.centralManager?.state == .poweredOn && !(self.centralManager?.isScanning ?? false) {
             self.delegate?.logMessage(message: "Started scanning for BLE peripherals.")
@@ -58,14 +60,18 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             self.delegate?.logMessage(message: "Connecting to peripheral \(peripheral).")
             self.peripheral = peripheral
             self.peripheral?.delegate = self
-            self.centralManager?.connect(peripheral, options: nil)
+            print("Connecting to peripheral")
+            self.centralManager?.connect(peripheral, options: [CBConnectPeripheralOptionNotifyOnConnectionKey: true])
         }
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        self.delegate?.logMessage(message: "Connected to peripheral \(peripheral), discovering services.")
-        self.setupServicesAndCharacteristics()
-        self.peripheral?.discoverServices(nil)
+        if (!self.connected) {
+            self.connected = true
+            self.delegate?.logMessage(message: "Connected to peripheral \(peripheral), discovering services.")
+            self.setupServicesAndCharacteristics()
+            self.peripheral?.discoverServices(nil)
+        }
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -123,13 +129,12 @@ class BleCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         characteristic.uuid == expectedCharacteristic.uuid
                     }) {
                         expectedCharacteristic.characteristic = characteristic
-                        if let services = self.services, self.servicesAndCharacteristicsComplete(services) {
-                            self.delegate?.connected(services: services)
-                        }
                     }
                 }
             }
-            
+            if let services = self.services, self.servicesAndCharacteristicsComplete(services) {
+                self.delegate?.connected(services: services)
+            }
         } else {
             self.delegate?.disconnected(reason: "Peripheral \(peripheral) and service \(service.uuid.uuidString) have no characteristics.")
             self.disconnect()
