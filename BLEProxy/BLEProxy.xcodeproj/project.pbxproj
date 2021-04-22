@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		974D052926317EE600C43EA0 /* BLEPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974D052826317EE600C43EA0 /* BLEPeripheral.swift */; };
 		97B71FF1261DE87600602F6D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B71FF0261DE87600602F6D /* AppDelegate.swift */; };
 		97B71FF3261DE87600602F6D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B71FF2261DE87600602F6D /* ViewController.swift */; };
 		97B71FF5261DE87800602F6D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97B71FF4261DE87800602F6D /* Assets.xcassets */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		974D052826317EE600C43EA0 /* BLEPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEPeripheral.swift; sourceTree = "<group>"; };
 		97B71FED261DE87600602F6D /* BLEProxy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BLEProxy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97B71FF0261DE87600602F6D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		97B71FF2261DE87600602F6D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				97BF77C22628859800094ACC /* BLECharacteristic.swift */,
 				97BF77C5262889BB00094ACC /* BLEService.swift */,
 				97BF77D626298D3E00094ACC /* Data+Hex.swift */,
+				974D052826317EE600C43EA0 /* BLEPeripheral.swift */,
 			);
 			path = BLEProxy;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 				97B71FF3261DE87600602F6D /* ViewController.swift in Sources */,
 				97BF77C0262878A000094ACC /* BLEConstants.swift in Sources */,
 				97B72002261EE69A00602F6D /* BLECentral.swift in Sources */,
+				974D052926317EE600C43EA0 /* BLEPeripheral.swift in Sources */,
 				97B71FF1261DE87600602F6D /* AppDelegate.swift in Sources */,
 				97BF77C6262889BB00094ACC /* BLEService.swift in Sources */,
 			);
