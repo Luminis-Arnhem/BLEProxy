@@ -4,8 +4,8 @@ import CoreBluetooth
 protocol BleCentralDelegate {
     func connected(services: [BleService])
     func disconnected(reason: String)
-    func dataWritten(onCharacteristicWithUUID: CBUUID, withResult: CBATTError.Code)
-    func dataReceived(data: Data, onCharacteristicWithUUID: CBUUID)
+    func dataWritten(onCharacteristicWithUUID uuid: CBUUID, withResult result: CBATTError.Code)
+    func dataReceived(data: Data, onCharacteristicWithUUID uuid: CBUUID)
     func logMessage(message: String)
 }
 
